@@ -349,7 +349,7 @@ class SliceDataset(torch.utils.data.Dataset):
             padding_left = enc_size[1] // 2 - enc_limits_center
             padding_right = padding_left + enc_limits_max
 
-            num_slices = hf["kspace"].shape[0]
+            num_slices = hf["kspace_white"].shape[0]
 
             metadata = {
                 "padding_left": padding_left,
@@ -368,7 +368,7 @@ class SliceDataset(torch.utils.data.Dataset):
         fname, dataslice, metadata = self.raw_samples[i]
 
         with h5py.File(fname, "r") as hf:
-            kspace = hf["kspace_clean"][dataslice]
+            kspace = hf["kspace_white"][dataslice]
 
             mask = np.asarray(hf["mask"]) if "mask" in hf else None
 

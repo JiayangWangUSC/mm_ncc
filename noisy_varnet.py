@@ -80,11 +80,11 @@ for epoch in range(max_epochs):
  
         torch.manual_seed(batch_count)
 
-        kspace = (train_batch ).to(device)
+        
         #gt = fastmri.ifft2c(kspace)
-        gt = toIm(kspace)
+        gt = toIm(train_batch)
 
-        kspace_input = torch.mul(Mask,kspace.to(device)).to(device)   
+        kspace_input = torch.mul(Mask,train_batch.to(device)).to(device)   
         recon = recon_model(kspace_input, Mask, 24).to(device)
         recon = fastmri.rss(fastmri.complex_abs(recon),dim=1)
 
