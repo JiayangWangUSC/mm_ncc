@@ -44,13 +44,13 @@ def MtoIm(im):
 
 # %% sampling mask
 mask = torch.zeros(ny)
-mask[torch.arange(132)*3] = 1
+mask[torch.arange(66)*6] = 1
 mask[torch.arange(186,210)] =1
 mask = mask.bool().unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
 
 
 # %% imnet loader
-imnet = torch.load('/home/wjy/Project/refnoise_model/imnet_mse',map_location=torch.device('cpu'))
+imnet = torch.load('/home/wjy/Project/mm_ncc_model/imnet_mse',map_location=torch.device('cpu'))
 
 # %%
 with torch.no_grad():
@@ -72,23 +72,20 @@ with torch.no_grad():
     recon = MtoIm(recon)
 
 # %% varnet loader
-epoch = 100
-sigma = 1
-cascades = 6
-chans = 20
-varnet = torch.load("/home/wjy/Project/refnoise_model/varnet_mse_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch"+str(epoch),map_location = 'cpu')
+#epoch = 100
+#sigma = 1
+cascades = 8
+chans = 16
+varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_ncc_cascades"+str(cascades)+"_channels"+str(chans),map_location = 'cpu')
 
 # %%
 with torch.no_grad():
     kspace = test_data[0].unsqueeze(0)
-    noise = sigma*math.sqrt(0.5)*torch.randn_like(kspace)
-    kspace_noise = kspace + noise
 
     gt = KtoIm(kspace)
-    gt_noise = KtoIm(kspace_noise)
 
     Mask = mask.unsqueeze(0)
-    kspace_undersample = torch.mul(kspace_noise,Mask)
+    kspace_undersample = torch.mul(kspace,Mask)
     
     recon_M = varnet(kspace_undersample, Mask, 24)
 
@@ -108,12 +105,10 @@ def NccLoss(x1,x2,sigma,nc):
 
 
 # %%
+sigma = 1
 sp = torch.ge(gt,0.03*torch.max(gt))
 print(L2Loss(recon,gt))
 print(L2Loss(torch.mul(recon,sp),torch.mul(gt,sp)))
-print(L2Loss(recon,gt_noise))
 print(L1Loss(recon,gt))
 print(L1Loss(torch.mul(recon,sp),torch.mul(gt,sp)))
-print(L1Loss(recon,gt_noise))
 print(NccLoss(recon,gt,sigma,nc)-NccLoss(gt,gt,sigma,nc))
-print(NccLoss(recon,gt_noise,sigma,nc)-NccLoss(gt_noise,gt_noise,sigma,nc))
