@@ -77,9 +77,6 @@ for epoch in range(max_epochs):
     for train_batch in train_dataloader:
         batch_count = batch_count + 1
         Mask = mask.unsqueeze(0).repeat(train_batch.size(0),1,1,1,1).to(device)
- 
-        torch.manual_seed(batch_count)
-
         
         #gt = fastmri.ifft2c(kspace)
         gt = toIm(train_batch)

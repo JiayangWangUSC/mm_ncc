@@ -69,7 +69,7 @@ mask[torch.arange(66)*6] = 1
 mask[torch.arange(186,210)] =1
 mask = mask.bool().unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
 
-
+sigma =1
 # %%
 max_epochs = 50
 for epoch in range(max_epochs):
@@ -79,9 +79,6 @@ for epoch in range(max_epochs):
         batch_count = batch_count + 1
         Mask = mask.unsqueeze(0).repeat(train_batch.size(0),1,1,1,1).to(device)
     
-        torch.manual_seed(batch_count)
-
-  
         kspace_input = torch.mul(Mask,train_batch.to(device)).to(device)   
         recon = recon_model(kspace_input, Mask, 24).to(device)
         recon = fastmri.rss(fastmri.complex_abs(recon),dim=1)
@@ -100,8 +97,8 @@ for epoch in range(max_epochs):
         recon_optimizer.step()
         recon_optimizer.zero_grad()
 
-    if (epoch + 1)%20 == 0:
-        torch.save(recon_model,"/project/jhaldar_118/jiayangw/refnoise/model/varnet_ncc_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch"+str(epoch+1))
+    #if (epoch + 1)%20 == 0:
+    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_ncc_cascades"+str(cascades)+"_channels"+str(chans))
 
 
 # %%
