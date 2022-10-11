@@ -72,7 +72,7 @@ mask = mask.bool().unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
 
 sigma =1
 # %%
-max_epochs = 150
+max_epochs = 100
 for epoch in range(max_epochs):
     print("epoch:",epoch+1)
     batch_count = 0    
