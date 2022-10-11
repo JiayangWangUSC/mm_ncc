@@ -53,6 +53,7 @@ recon_model = VarNet(
     pools = 4,
     mask_center= True
 )
+recon_model = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_mse_cascades"+str(cascades)+"_channels"+str(chans)+"_acc4")
 
 # %% training settings
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -70,7 +71,7 @@ mask[torch.arange(186,210)] =1
 mask = mask.bool().unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
 
 # %%
-max_epochs = 50
+max_epochs = 150
 for epoch in range(max_epochs):
     print("epoch:",epoch+1)
     batch_count = 0    

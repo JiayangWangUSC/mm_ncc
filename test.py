@@ -44,7 +44,7 @@ def MtoIm(im):
 
 # %% sampling mask
 mask = torch.zeros(ny)
-mask[torch.arange(66)*6] = 1
+mask[torch.arange(99)*4] = 1
 mask[torch.arange(186,210)] =1
 mask = mask.bool().unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
 
@@ -76,7 +76,7 @@ with torch.no_grad():
 #sigma = 1
 cascades = 8
 chans = 16
-varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_ncc_cascades"+str(cascades)+"_channels"+str(chans),map_location = 'cpu')
+varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_mae_cascades"+str(cascades)+"_channels"+str(chans)+'_acc4',map_location = 'cpu')
 
 # %%
 with torch.no_grad():
