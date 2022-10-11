@@ -76,7 +76,7 @@ with torch.no_grad():
 #sigma = 1
 cascades = 8
 chans = 16
-varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_mse_cascades"+str(cascades)+"_channels"+str(chans),map_location = 'cpu')
+varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_ncc_cascades"+str(cascades)+"_channels"+str(chans),map_location = 'cpu')
 
 # %%
 with torch.no_grad():
