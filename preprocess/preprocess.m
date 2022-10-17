@@ -1,6 +1,6 @@
 %%
-datapath = '/project/jhaldar_118/jiayangw/dataset/brain_clean/train/';
-%datapath = '/home/wjy/Project/fastmri_dataset/miniset_brain_clean/';
+%datapath = '/project/jhaldar_118/jiayangw/dataset/brain_clean/train/';
+datapath = '/home/wjy/Project/fastmri_dataset/miniset_brain_clean/';
 dirname = dir(datapath);
 N1 = 384; N2 = 396; Nc = 16; Ns = 8;
 
@@ -21,11 +21,12 @@ kData = h5read([datapath,dirname(dir_num).name],'/kspace');
 kspace = complex(kData.r,kData.i);
 kspace = permute(kspace,[4,2,1,3]);
 
-kdata = reshape(kspace(1,:,:,:),2*N1,N2,Nc);
-im = ifft2c(kdata);
-im = im(192:575,:,:);
-
-kspace_new = kspace(1:Ns,:,:,:);
+kspace_new = zeros(Ns,N1,N2,Nc);
+for s = 1:Ns
+    im = ifft2c(reshape(kspace(s,:,:,:),2*N1,N2,Nc));
+    im = im(192:575,:,:);
+    kspace_new(s,:,:,:) = fft2c(im);
+end
 kspace_new = permute(kspace_new,[3,2,4,1]);
 %% new dataset
 kdata = zeros(N2,N1,2*Nc,Ns);
