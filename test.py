@@ -80,7 +80,7 @@ varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_mae_cascades"+str(cas
 
 # %%
 with torch.no_grad():
-    kspace = test_data[0].unsqueeze(0)
+    kspace = test_data[1].unsqueeze(0)
 
     gt = KtoIm(kspace)
 
@@ -112,5 +112,16 @@ print(L2Loss(torch.mul(recon,sp),torch.mul(gt,sp)))
 print(L1Loss(recon,gt))
 print(L1Loss(torch.mul(recon,sp),torch.mul(gt,sp)))
 print(NccLoss(recon,gt,sigma,nc)-NccLoss(gt,gt,sigma,nc))
+
+# %%
+up = 200
+bottom = 280
+left = 190
+right = 270
+patch = recon
+patch = patch[:,torch.arange(up,bottom),:]
+patch = patch[:,:,torch.arange(left,right)]
+patch = F.interpolate(patch.unsqueeze(0),size=[256,256],mode='nearest')
+save_image(patch.squeeze()/50,'/home/wjy/Project/mm_ncc_result/mae_patch2.png')
 
 # %%
