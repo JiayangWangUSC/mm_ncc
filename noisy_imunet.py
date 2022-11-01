@@ -24,7 +24,7 @@ nc = 16
 nx = 384
 ny = 396
 
-def data_transform(kspace, mask, target, data_attributes, filename, slice_num):
+def data_transform(kspace):
     # Transform the kspace to tensor format
     kspace = transforms.to_tensor(kspace)
     kspace = torch.cat((kspace[torch.arange(nc),:,:].unsqueeze(-1),kspace[torch.arange(nc,2*nc),:,:].unsqueeze(-1)),-1)
@@ -32,7 +32,7 @@ def data_transform(kspace, mask, target, data_attributes, filename, slice_num):
 
 train_data = SliceDataset(
     #root=pathlib.Path('/home/wjy/Project/fastmri_dataset/miniset_brain_clean/'),
-    root = pathlib.Path('/project/jhaldar_118/jiayangw/dataset/brain_clean/train/'),
+    root = pathlib.Path('/project/jhaldar_118/jiayangw/dataset/brain_copy/train/'),
     transform=data_transform,
     challenge='multicoil'
 )
@@ -50,7 +50,7 @@ recon_model = Unet(
   num_pool_layers = 4,
   drop_prob = 0.0
 )
-recon_model = torch.load("/project/jhaldar_118/jiayangw/refnoise/model/imnet_mse")
+#recon_model = torch.load("/project/jhaldar_118/jiayangw/refnoise/model/imnet_mse")
 #print(sum(p.numel() for p in recon_model.parameters() if p.requires_grad))
 # %% training settings
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -62,12 +62,12 @@ L2Loss = torch.nn.MSELoss()
 L1Loss = torch.nn.L1Loss()
 # %% sampling mask
 mask = torch.zeros(ny)
-mask[torch.arange(132)*3] = 1
+mask[torch.arange(99)*4] = 1
 mask[torch.arange(186,210)] =1
 mask = mask.unsqueeze(0).unsqueeze(0).unsqueeze(0).unsqueeze(4).repeat(1,nc,nx,1,2)
 
 # %%
-max_epochs = 200
+max_epochs = 100
 for epoch in range(max_epochs):
     print("epoch:",epoch+1)
     batch_count = 0    
@@ -87,7 +87,7 @@ for epoch in range(max_epochs):
         recon = torch.cat((image_output[:,torch.arange(nc),:,:].unsqueeze(4),image_output[:,torch.arange(nc,2*nc),:,:].unsqueeze(4)),4).to(device)
         recon = fastmri.rss(fastmri.complex_abs(recon),dim=1)
 
-        loss = L2Loss(recon.to(device),gt.to(device))
+        loss = L1Loss(recon.to(device),gt.to(device))
     
         if batch_count%100 == 0:
             print("batch:",batch_count,"train loss:",loss.item())
@@ -95,5 +95,5 @@ for epoch in range(max_epochs):
         loss.backward()
         recon_optimizer.step()
         recon_optimizer.zero_grad()
-    if (epoch + 1)%20 == 0:
-        torch.save(recon_model,"/project/jhaldar_118/jiayangw/refnoise/model/imnet_mse_epoch"+str(epoch+1))
+    
+    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_mae_acc4")
