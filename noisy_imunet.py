@@ -24,7 +24,7 @@ nc = 16
 nx = 384
 ny = 396
 
-def data_transform(kspace):
+def data_transform(kspace,ncc_effect):
     # Transform the kspace to tensor format
     kspace = transforms.to_tensor(kspace)
     kspace = torch.cat((kspace[torch.arange(nc),:,:].unsqueeze(-1),kspace[torch.arange(nc,2*nc),:,:].unsqueeze(-1)),-1)
@@ -74,14 +74,10 @@ for epoch in range(max_epochs):
     for train_batch in train_dataloader:
         batch_count = batch_count + 1
         Mask = mask.repeat(train_batch.size(0),1,1,1,1).to(device)
+
+        gt = toIm(train_batch)
     
-        torch.manual_seed(batch_count)
-    
-        noise = math.sqrt(0.5)*torch.randn_like(train_batch)
-        kspace = (train_batch + noise).to(device)
-        gt = toIm(kspace)
-    
-        image = fastmri.ifft2c(torch.mul(Mask.to(device),kspace.to(device))).to(device)   
+        image = fastmri.ifft2c(torch.mul(Mask.to(device),train_batch.to(device))).to(device)   
         image_input = torch.cat((image[:,:,:,:,0],image[:,:,:,:,1]),1).to(device) 
         image_output = recon_model(image_input).to(device)
         recon = torch.cat((image_output[:,torch.arange(nc),:,:].unsqueeze(4),image_output[:,torch.arange(nc,2*nc),:,:].unsqueeze(4)),4).to(device)

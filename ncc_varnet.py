@@ -24,11 +24,12 @@ nc = 16
 nx = 384
 ny = 396
 
-def data_transform(kspace):
+def data_transform(kspace,ncc_effect):
     # Transform the kspace to tensor format
+    ncc_effect = transforms.to_tensor(ncc_effect)
     kspace = transforms.to_tensor(kspace)
     kspace = torch.cat((kspace[torch.arange(nc),:,:].unsqueeze(-1),kspace[torch.arange(nc,2*nc),:,:].unsqueeze(-1)),-1)
-    return kspace
+    return kspace, ncc_effect
 
 train_data = SliceDataset(
     #root=pathlib.Path('/home/wjy/Project/fastmri_dataset/miniset_brain_clean/'),
@@ -89,7 +90,7 @@ for epoch in range(max_epochs):
             y = gt*(ss.ive(ncc_effect[:,0,:,:],x)/ss.ive(ncc_effect[:,0,:,:]-1,x))
 
         loss = torch.sum(torch.square(recon.to(device)-y.to(device))/ncc_effect[:,1,:,:].to(device))
-    
+
         if batch_count%100 == 0:
             print("batch:",batch_count,"train loss:",loss.item())
         

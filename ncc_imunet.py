@@ -15,7 +15,7 @@ from torchvision.utils import save_image
 from torch.utils.data import Dataset
 import h5py
 import math
-
+import scipy.special as ss
 
 # %% data loader
 from my_data import *
@@ -26,9 +26,10 @@ ny = 396
 
 def data_transform(kspace,ncc_effect):
     # Transform the kspace to tensor format
+    ncc_effect = transforms.to_tensor(ncc_effect)
     kspace = transforms.to_tensor(kspace)
     kspace = torch.cat((kspace[torch.arange(nc),:,:].unsqueeze(-1),kspace[torch.arange(nc,2*nc),:,:].unsqueeze(-1)),-1)
-    return kspace
+    return kspace, ncc_effect
 
 train_data = SliceDataset(
     #root=pathlib.Path('/home/wjy/Project/fastmri_dataset/miniset_brain_clean/'),
@@ -41,19 +42,16 @@ def toIm(kspace):
     image = fastmri.rss(fastmri.complex_abs(fastmri.ifft2c(kspace)), dim=1)
     return image
 
-# %% varnet loader
-from varnet import *
-cascades = 6
-chans = 20
-recon_model = VarNet(
-    num_cascades = cascades,
-    sens_chans = 16,
-    sens_pools = 4,
-    chans = chans,
-    pools = 4,
-    mask_center= True
+# %% unet loader
+recon_model = Unet(
+  in_chans = 32,
+  out_chans = 32,
+  chans = 256,
+  num_pool_layers = 4,
+  drop_prob = 0.0
 )
-#recon_model = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_mse_cascades"+str(cascades)+"_channels"+str(chans)+"_acc4")
+#recon_model = torch.load("/project/jhaldar_118/jiayangw/refnoise/model/imnet_mse")
+#print(sum(p.numel() for p in recon_model.parameters() if p.requires_grad))
 
 # %% training settings
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -68,33 +66,35 @@ L1Loss = torch.nn.L1Loss()
 mask = torch.zeros(ny)
 mask[torch.arange(99)*4] = 1
 mask[torch.arange(186,210)] =1
-mask = mask.bool().unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
+mask = mask.unsqueeze(0).unsqueeze(0).unsqueeze(0).unsqueeze(4).repeat(1,nc,nx,1,2)
 
 # %%
 max_epochs = 100
 for epoch in range(max_epochs):
     print("epoch:",epoch+1)
     batch_count = 0    
-    for train_batch in train_dataloader:
+    for train_batch, ncc_effect in train_dataloader:
         batch_count = batch_count + 1
-        Mask = mask.unsqueeze(0).repeat(train_batch.size(0),1,1,1,1).to(device)
-        
-        #gt = fastmri.ifft2c(kspace)
-        gt = toIm(train_batch)
-
-        kspace_input = torch.mul(Mask,train_batch.to(device)).to(device)   
-        recon = recon_model(kspace_input, Mask, 24).to(device)
+        Mask = mask.repeat(train_batch.size(0),1,1,1,1).to(device)
+    
+        image = fastmri.ifft2c(torch.mul(Mask.to(device),train_batch.to(device))).to(device)   
+        image_input = torch.cat((image[:,:,:,:,0],image[:,:,:,:,1]),1).to(device) 
+        image_output = recon_model(image_input).to(device)
+        recon = torch.cat((image_output[:,torch.arange(nc),:,:].unsqueeze(4),image_output[:,torch.arange(nc,2*nc),:,:].unsqueeze(4)),4).to(device)
         recon = fastmri.rss(fastmri.complex_abs(recon),dim=1)
 
-        loss = L1Loss(recon.to(device),gt.to(device))
+        with torch.no_grad():
+            gt = toIm(train_batch)
+            x = recon.cpu()*gt/(ncc_effect[:,1,:,:])
+            y = gt*(ss.ive(ncc_effect[:,0,:,:],x)/ss.ive(ncc_effect[:,0,:,:]-1,x))
 
+        loss = torch.sum(torch.square(recon.to(device)-y.to(device))/ncc_effect[:,1,:,:].to(device))
+    
         if batch_count%100 == 0:
             print("batch:",batch_count,"train loss:",loss.item())
         
         loss.backward()
         recon_optimizer.step()
         recon_optimizer.zero_grad()
-    #if (epoch + 1)%20 == 0:
-    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_mae_acc4_cascades"+str(cascades)+"_channels"+str(chans))
-
-# %%
+    
+    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_ncc_acc4")
