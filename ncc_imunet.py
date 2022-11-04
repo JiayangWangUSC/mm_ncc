@@ -96,5 +96,5 @@ for epoch in range(max_epochs):
         loss.backward()
         recon_optimizer.step()
         recon_optimizer.zero_grad()
-    
-    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_ncc_acc4")
+    if (epoch + 1)%20 == 0:
+        torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_ncc_acc4"+"_epoch"+str(epoch))

@@ -21,7 +21,7 @@ nc = 16
 nx = 384
 ny = 396
 
-def data_transform(kspace, mask, target, data_attributes, filename, slice_num):
+def data_transform(kspace,ncc_effect):
     # Transform the kspace to tensor format
     kspace = transforms.to_tensor(kspace)
     kspace = torch.cat((kspace[torch.arange(nc),:,:].unsqueeze(-1),kspace[torch.arange(nc,2*nc),:,:].unsqueeze(-1)),-1)
@@ -76,11 +76,11 @@ with torch.no_grad():
 #sigma = 1
 cascades = 8
 chans = 16
-varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_mae_cascades"+str(cascades)+"_channels"+str(chans)+'_acc4',map_location = 'cpu')
+varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_mse_cascades"+str(cascades)+"_channels"+str(chans)+'_acc4',map_location = 'cpu')
 
 # %%
 with torch.no_grad():
-    kspace = test_data[1].unsqueeze(0)
+    kspace = test_data[0].unsqueeze(0)
 
     gt = KtoIm(kspace)
 
@@ -114,14 +114,14 @@ print(L1Loss(torch.mul(recon,sp),torch.mul(gt,sp)))
 print(NccLoss(recon,gt,sigma,nc)-NccLoss(gt,gt,sigma,nc))
 
 # %%
-up = 200
-bottom = 280
-left = 190
-right = 270
+up = 110
+bottom = 170
+left = 150
+right = 210
 patch = recon
 patch = patch[:,torch.arange(up,bottom),:]
 patch = patch[:,:,torch.arange(left,right)]
 patch = F.interpolate(patch.unsqueeze(0),size=[256,256],mode='nearest')
-save_image(patch.squeeze()/50,'/home/wjy/Project/mm_ncc_result/mae_patch2.png')
+save_image(patch.squeeze()/50,'/home/wjy/Project/mm_ncc_result/mse_patch2.png')
 
 # %%

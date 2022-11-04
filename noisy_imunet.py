@@ -67,7 +67,7 @@ mask[torch.arange(186,210)] =1
 mask = mask.unsqueeze(0).unsqueeze(0).unsqueeze(0).unsqueeze(4).repeat(1,nc,nx,1,2)
 
 # %%
-max_epochs = 100
+max_epochs = 200
 for epoch in range(max_epochs):
     print("epoch:",epoch+1)
     batch_count = 0    
@@ -91,5 +91,5 @@ for epoch in range(max_epochs):
         loss.backward()
         recon_optimizer.step()
         recon_optimizer.zero_grad()
-    
-    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_mse_acc4")
+    if (epoch + 1)%20 == 0:
+        torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_mse_acc4"+"_epoch"+str(epoch))
