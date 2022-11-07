@@ -28,7 +28,7 @@ def data_transform(kspace,ncc_effect):
     return kspace
 
 test_data = SliceDataset(
-    root=pathlib.Path('/home/wjy/Project/fastmri_dataset/miniset_brain_clean/'),
+    root=pathlib.Path('/home/wjy/Project/fastmri_dataset/brain_copy/'),
     #root = pathlib.Path('/project/jhaldar_118/jiayangw/dataset/brain_clean/train/'),
     transform=data_transform,
     challenge='multicoil'
@@ -74,10 +74,10 @@ with torch.no_grad():
 # %% varnet loader
 #epoch = 100
 #sigma = 1
-cascades = 8
-chans = 16
-varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_mse_cascades"+str(cascades)+"_channels"+str(chans)+'_acc4',map_location = 'cpu')
-
+cascades = 6
+chans = 20
+varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_mae_acc4_cascades"+str(cascades)+"_channels"+str(chans),map_location = 'cpu')
+#varnet = torch.load("/home/wjy/Project/refnoise_model/varnet_mse_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch160",map_location = 'cpu')
 # %%
 with torch.no_grad():
     kspace = test_data[0].unsqueeze(0)
