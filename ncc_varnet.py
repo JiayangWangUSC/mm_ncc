@@ -44,7 +44,7 @@ def toIm(kspace):
 
 # %% varnet loader
 from varnet import *
-cascades = 8
+cascades = 12
 chans = 16
 recon_model = VarNet(
     num_cascades = cascades,
@@ -54,11 +54,11 @@ recon_model = VarNet(
     pools = 4,
     mask_center= True
 )
-recon_model = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_ncc_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch59")
+#recon_model = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_ncc_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch59")
 
 # %% training settings
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-batch_size = 4
+batch_size = 2
 train_dataloader = torch.utils.data.DataLoader(train_data,batch_size)
 recon_model.to(device)
 recon_optimizer = optim.Adam(recon_model.parameters(),lr=3e-4)
@@ -99,6 +99,6 @@ for epoch in range(max_epochs):
         recon_optimizer.zero_grad()
 
     if (epoch + 1)%20 == 0:
-        torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_ncc_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch"+str(epoch+61))
+        torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_ncc_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch"+str(epoch+1))
 
 # %%
