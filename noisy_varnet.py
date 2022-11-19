@@ -24,7 +24,7 @@ nc = 16
 nx = 384
 ny = 396
 
-def data_transform(kspace,ncc_effect, image_svd):
+def data_transform(kspace,ncc_effect):
     # Transform the kspace to tensor format
     kspace = transforms.to_tensor(kspace)
     kspace = torch.cat((kspace[torch.arange(nc),:,:].unsqueeze(-1),kspace[torch.arange(nc,2*nc),:,:].unsqueeze(-1)),-1)

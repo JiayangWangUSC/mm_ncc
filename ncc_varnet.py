@@ -24,7 +24,7 @@ nc = 16
 nx = 384
 ny = 396
 
-def data_transform(kspace,ncc_effect, image_svd):
+def data_transform(kspace,ncc_effect):
     # Transform the kspace to tensor format
     ncc_effect = transforms.to_tensor(ncc_effect)
     kspace = transforms.to_tensor(kspace)
