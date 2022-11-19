@@ -53,7 +53,7 @@ recon_model = VarNet(
     pools = 4,
     mask_center= True
 )
-recon_model = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_mae_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch140")
+recon_model = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_mse_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch140")
 
 # %% training settings
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -86,7 +86,7 @@ for epoch in range(max_epochs):
         recon = recon_model(kspace_input, Mask, 24).to(device)
         recon = fastmri.rss(fastmri.complex_abs(recon),dim=1)
 
-        loss = L1Loss(recon.to(device),gt.to(device))
+        loss = L2Loss(recon.to(device),gt.to(device))
 
         if batch_count%100 == 0:
             print("batch:",batch_count,"train loss:",loss.item())
@@ -95,6 +95,6 @@ for epoch in range(max_epochs):
         recon_optimizer.step()
         recon_optimizer.zero_grad()
     if (epoch + 1)%20 == 0:
-        torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_mae_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch"+str(epoch+141))
+        torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_mse_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch"+str(epoch+141))
 
 # %%
