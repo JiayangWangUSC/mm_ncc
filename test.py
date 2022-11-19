@@ -21,11 +21,12 @@ nc = 16
 nx = 384
 ny = 396
 
-def data_transform(kspace,ncc_effect):
+def data_transform(kspace, ncc_effect, image_svd):
     # Transform the kspace to tensor format
     kspace = transforms.to_tensor(kspace)
     kspace = torch.cat((kspace[torch.arange(nc),:,:].unsqueeze(-1),kspace[torch.arange(nc,2*nc),:,:].unsqueeze(-1)),-1)
-    return kspace
+    image_svd = transforms.to_tensor(image_svd)
+    return kspace, image_svd
 
 test_data = SliceDataset(
     root=pathlib.Path('/home/wjy/Project/fastmri_dataset/brain_copy/'),
@@ -54,7 +55,8 @@ imnet = torch.load('/home/wjy/Project/mm_ncc_model/imnet_mse',map_location=torch
 
 # %%
 with torch.no_grad():
-    kspace = test_data[0].unsqueeze(0)
+    kspace, image_svd = test_data[0]
+    kspace = kspace.squeeze()
     noise = math.sqrt(0.5)*torch.randn_like(kspace)
     kspace_noise = kspace + noise
 
@@ -72,15 +74,16 @@ with torch.no_grad():
     recon = MtoIm(recon)
 
 # %% varnet loader
-epoch = 160
+epoch = 100
 #sigma = 1
 cascades = 8
 chans = 16
-varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_ncc_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch"+str(epoch),map_location = 'cpu')
+varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_mae_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch"+str(epoch),map_location = 'cpu')
 #varnet = torch.load("/home/wjy/Project/refnoise_model/varnet_mse_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch160",map_location = 'cpu')
 # %%
 with torch.no_grad():
-    kspace = test_data[0].unsqueeze(0)
+    kspace, image_svd = test_data[0]
+    kspace = kspace.unsqueeze(0)
 
     gt = KtoIm(kspace)
 
@@ -104,12 +107,12 @@ def NccLoss(x1,x2,sigma,nc):
 
 # %%
 sigma = 1
-sp = torch.ge(gt,0.03*torch.max(gt))
-print(L2Loss(recon,gt))
-print(L2Loss(torch.mul(recon,sp),torch.mul(gt,sp)))
-print(L1Loss(recon,gt))
-print(L1Loss(torch.mul(recon,sp),torch.mul(gt,sp)))
-print(NccLoss(recon,gt,sigma,nc)-NccLoss(gt,gt,sigma,nc))
+sp = torch.ge(image_svd,0.03*torch.max(image_svd))
+print(L2Loss(recon,image_svd))
+print(L2Loss(torch.mul(recon,sp),torch.mul(image_svd,sp)))
+print(L1Loss(recon,image_svd))
+print(L1Loss(torch.mul(recon,sp),torch.mul(image_svd,sp)))
+#print(NccLoss(recon,gt,sigma,nc)-NccLoss(gt,gt,sigma,nc))
 
 # %%
 up = 110
