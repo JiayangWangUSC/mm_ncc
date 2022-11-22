@@ -49,6 +49,17 @@ mask[torch.arange(99)*4] = 1
 mask[torch.arange(186,210)] =1
 mask = mask.bool().unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
 
+# %% define loss
+L1Loss = torch.nn.L1Loss()
+L2Loss = torch.nn.MSELoss()
+
+import scipy.special as ss
+
+def NccLoss(x1,x2,sigma,nc):
+    x = x1*x2/(sigma*sigma/2)
+    y = torch.sum(torch.square(x1)/(sigma*sigma)-(torch.log(ss.ive(nc-1,x))+x)+(nc-1)*torch.log(x1))
+    return y/torch.sum(torch.ones_like(x))
+
 
 # %% imnet loader
 imnet = torch.load('/home/wjy/Project/mm_ncc_model/imnet_mse',map_location=torch.device('cpu'))
@@ -76,13 +87,14 @@ with torch.no_grad():
 # %% varnet loader
 epoch = 100
 #sigma = 1
-cascades = 8
+cascades = 12
 chans = 16
-varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_mae_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch"+str(epoch),map_location = 'cpu')
+varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_mse_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch"+str(epoch),map_location = 'cpu')
 #varnet = torch.load("/home/wjy/Project/refnoise_model/varnet_mse_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch160",map_location = 'cpu')
+
 # %%
 with torch.no_grad():
-    kspace, image_svd = test_data[0]
+    kspace, image_svd = test_data[9]
     kspace = kspace.unsqueeze(0)
 
     gt = KtoIm(kspace)
@@ -93,20 +105,8 @@ with torch.no_grad():
     recon_M = varnet(kspace_undersample, Mask, 24)
 
     recon = MtoIm(recon_M)
-# %% define loss
-L1Loss = torch.nn.L1Loss()
-L2Loss = torch.nn.MSELoss()
-
-import scipy.special as ss
-
-def NccLoss(x1,x2,sigma,nc):
-    x = x1*x2/(sigma*sigma/2)
-    y = torch.sum(torch.square(x1)/(sigma*sigma)-(torch.log(ss.ive(nc-1,x))+x)+(nc-1)*torch.log(x1))
-    return y/torch.sum(torch.ones_like(x))
-
 
 # %%
-sigma = 1
 sp = torch.ge(image_svd,0.03*torch.max(image_svd))
 print(L2Loss(recon,image_svd))
 print(L2Loss(torch.mul(recon,sp),torch.mul(image_svd,sp)))
@@ -124,5 +124,3 @@ patch = patch[:,torch.arange(up,bottom),:]
 patch = patch[:,:,torch.arange(left,right)]
 patch = F.interpolate(patch.unsqueeze(0),size=[256,256],mode='nearest')
 save_image(patch.squeeze()/50,'/home/wjy/Project/mm_ncc_result/mse_patch2.png')
-
-# %%
