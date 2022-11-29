@@ -15,7 +15,7 @@ fft2c = @(x) fftshift(fft2(ifftshift(x)))/sqrt(size(x,1)*size(x,2));
 ifft2c = @(x) fftshift(ifft2(ifftshift(x)))*sqrt(size(x,1)*size(x,2)); 
 
 %%
-for dir_num = 3:5 %:length(dirname)
+for dir_num = 3 %:length(dirname)
 %% slice selection, undersampling and whitening 
 kData = h5read([datapath,dirname(dir_num).name],'/kspace');
 kspace = complex(kData.r,kData.i)*2e5;
@@ -23,7 +23,7 @@ kspace = permute(kspace,[4,2,1,3]);
 
 image_svd = zeros(Ns,N1,N2,1);
 
-for s = 1:Ns
+for s = 1
     % undersample
     im = ifft2c(reshape(kspace(s,:,:,:),2*N1,N2,Nc));
     im = im(192:575,:,:);

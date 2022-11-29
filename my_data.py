@@ -375,7 +375,6 @@ class SliceDataset(torch.utils.data.Dataset):
             #image_svd = hf["image_svd"][dataslice]
 
             #mask = np.asarray(hf["mask"]) if "mask" in hf else None
-
             #target = hf[self.recons_key][dataslice] if self.recons_key in hf else None
 
             attrs = dict(hf.attrs)
