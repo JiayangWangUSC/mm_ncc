@@ -7,9 +7,9 @@ N1 = 384; N2 = 396; Nc = 16; Ns = 8;
 
 %%
 %newdatapath = '/project/jhaldar_118/jiayangw/dataset/brain_clean/train/';
-for dir_num = 3:length(dirname)
-    h5create([datapath,dirname(dir_num).name],'/sense_maps',[N2,N1,2*Nc,Ns],'Datatype','single');
-end
+%for dir_num = 3:length(dirname)
+%    h5create([datapath,dirname(dir_num).name],'/sense_maps',[N2,N1,2*Nc,Ns],'Datatype','single');
+%end
 
 %%
 fft2c = @(x) fftshift(fft2(ifftshift(x)))/sqrt(size(x,1)*size(x,2));
