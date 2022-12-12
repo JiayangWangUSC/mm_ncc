@@ -1,4 +1,5 @@
 %% sense maps
+addpath('SPIRiT_v0.3')
 datapath = '/project/jhaldar_118/jiayangw/dataset/brain_copy/train/';
 %datapath = '/home/wjy/Project/fastmri_dataset/brain_copy/';
 dirname = dir(datapath);
