@@ -45,7 +45,7 @@ def MtoIm(im):
 
 # %% sampling mask
 mask = torch.zeros(ny)
-mask[torch.arange(99)*2] = 1
+mask[torch.arange(132)*3] = 1
 mask[torch.arange(186,210)] =1
 mask = mask.bool().unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
 
@@ -89,7 +89,7 @@ epoch = 100
 #sigma = 1
 cascades = 12
 chans = 16
-varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_mae_acc4_cascades"+str(cascades)+"_channels"+str(chans),map_location = 'cpu')
+varnet = torch.load("/home/wjy/Project/mm_ncc_model/varnet_mae_acc3_cascades"+str(cascades)+"_channels"+str(chans),map_location = 'cpu')
 #varnet = torch.load("/home/wjy/Project/refnoise_model/varnet_mse_acc4_cascades"+str(cascades)+"_channels"+str(chans)+"_epoch160",map_location = 'cpu')
 
 # %%
@@ -115,14 +115,14 @@ print(L1Loss(torch.mul(recon,sp),torch.mul(image_svd,sp)))
 #print(NccLoss(recon,gt,sigma,nc)-NccLoss(gt,gt,sigma,nc))
 
 # %%
-up = 180
-bottom = 230
-left = 220
-right = 270
+up = 220
+bottom = 270
+left = 140
+right = 190
 patch = image_svd
 patch = patch[:,torch.arange(up,bottom),:]
 patch = patch[:,:,torch.arange(left,right)]
 patch = F.interpolate(patch.unsqueeze(0),size=[256,256],mode='nearest')
-save_image(patch.squeeze()/50,'/home/wjy/Project/mm_ncc_result/sense_patch1_slice1.png')
+save_image(patch.squeeze()/50,'/home/wjy/Project/mm_ncc_result/sense_patch6_slice1.png')
 
 # %%
