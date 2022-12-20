@@ -1,7 +1,7 @@
 %% sense maps
 addpath(genpath('SPIRiT_v0.3'))
-%datapath = '/project/jhaldar_118/jiayangw/dataset/brain_copy/train/';
-datapath = '/home/wjy/Project/fastmri_dataset/brain_copy/';
+datapath = '/project/jhaldar_118/jiayangw/dataset/brain_copy/train/';
+%datapath = '/home/wjy/Project/fastmri_dataset/brain_copy/';
 dirname = dir(datapath);
 N1 = 384; N2 = 396; Nc = 16; Ns = 8;
 
