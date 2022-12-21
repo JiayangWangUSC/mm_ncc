@@ -16,7 +16,7 @@ fft2c = @(x) fftshift(fft2(ifftshift(x)))/sqrt(size(x,1)*size(x,2));
 ifft2c = @(x) fftshift(ifft2(ifftshift(x)))*sqrt(size(x,1)*size(x,2)); 
 
 %%
-for dir_num = length(dirname):-1:length(dirname)-100
+for dir_num = length(dirname)-100:-1:length(dirname)-300
 %% slice selection, undersampling and whitening 
 kData = h5read([datapath,dirname(dir_num).name],'/kspace');
 kspace = complex(kData.r,kData.i)*2e5;
