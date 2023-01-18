@@ -372,7 +372,9 @@ class SliceDataset(torch.utils.data.Dataset):
 
             ncc_effect = hf["ncc_effect"][dataslice]
 
-            image_svd = hf["image_svd"][dataslice]
+            #image_svd = hf["image_svd"][dataslice]
+
+            sense_maps = hf["sense_maps"][dataslice]
 
             #mask = np.asarray(hf["mask"]) if "mask" in hf else None
             #target = hf[self.recons_key][dataslice] if self.recons_key in hf else None
@@ -381,9 +383,9 @@ class SliceDataset(torch.utils.data.Dataset):
             attrs.update(metadata)
 
         if self.transform is None:
-            sample = (kspace, ncc_effect,image_svd)
+            sample = (kspace, ncc_effect,sense_maps)
         else:
-            sample = self.transform(kspace, ncc_effect,image_svd)
+            sample = self.transform(kspace, ncc_effect, sense_maps)
 
         return sample
 

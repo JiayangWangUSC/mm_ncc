@@ -1,22 +1,22 @@
 %% sense maps
 addpath(genpath('SPIRiT_v0.3'))
-datapath = '/project/jhaldar_118/jiayangw/dataset/brain_copy/train/';
-%datapath = '/home/wjy/Project/fastmri_dataset/brain_copy/';
+%datapath = '/project/jhaldar_118/jiayangw/dataset/brain_copy/train/';
+datapath = '/home/wjy/Project/fastmri_dataset/brain_copy/';
 dirname = dir(datapath);
 N1 = 384; N2 = 396; Nc = 16; Ns = 8;
 
 %%
 %newdatapath = '/project/jhaldar_118/jiayangw/dataset/brain_clean/train/';
-%for dir_num = 3:length(dirname)
-%    h5create([datapath,dirname(dir_num).name],'/sense_maps',[N2,N1,2*Nc,Ns],'Datatype','single');
-%end
+for dir_num = 3:length(dirname)
+    h5create([datapath,dirname(dir_num).name],'/sense_maps',[N2,N1,2*Nc,Ns],'Datatype','single');
+end
 
 %%
 fft2c = @(x) fftshift(fft2(ifftshift(x)))/sqrt(size(x,1)*size(x,2));
 ifft2c = @(x) fftshift(ifft2(ifftshift(x)))*sqrt(size(x,1)*size(x,2)); 
 
 %%
-for dir_num = length(dirname)-100:-1:length(dirname)-600
+for dir_num = 1:length(dirname)
 %% slice selection, undersampling and whitening 
 kData = h5read([datapath,dirname(dir_num).name],'/kspace');
 kspace = complex(kData.r,kData.i)*2e5;

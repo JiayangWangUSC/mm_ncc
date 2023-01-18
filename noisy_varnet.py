@@ -24,7 +24,7 @@ nc = 16
 nx = 384
 ny = 396
 
-def data_transform(kspace,ncc_effect):
+def data_transform(kspace,ncc_effect,sense_maps):
     # Transform the kspace to tensor format
     kspace = transforms.to_tensor(kspace)
     kspace = torch.cat((kspace[torch.arange(nc),:,:].unsqueeze(-1),kspace[torch.arange(nc,2*nc),:,:].unsqueeze(-1)),-1)
@@ -66,7 +66,7 @@ L1Loss = torch.nn.L1Loss()
 
 # %% sampling mask
 mask = torch.zeros(ny)
-mask[torch.arange(132)*3] = 1
+mask[torch.arange(66)*6] = 1
 mask[torch.arange(186,210)] =1
 mask = mask.bool().unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
 
@@ -95,6 +95,6 @@ for epoch in range(max_epochs):
         recon_optimizer.step()
         recon_optimizer.zero_grad()
     #if (epoch + 1)%20 == 0:
-    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_mse_acc3_cascades"+str(cascades)+"_channels"+str(chans))
+    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_mse_acc6")
 
 # %%
