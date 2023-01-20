@@ -67,7 +67,7 @@ mask[torch.arange(186,210)] =1
 mask = mask.unsqueeze(0).unsqueeze(0).unsqueeze(0).unsqueeze(4).repeat(1,nc,nx,1,2)
 
 # %%
-max_epochs = 150
+max_epochs = 100
 for epoch in range(max_epochs):
     print("epoch:",epoch+1)
     batch_count = 0    
@@ -83,7 +83,7 @@ for epoch in range(max_epochs):
         recon = torch.cat((image_output[:,torch.arange(nc),:,:].unsqueeze(4),image_output[:,torch.arange(nc,2*nc),:,:].unsqueeze(4)),4).to(device)
         recon = fastmri.rss(fastmri.complex_abs(recon),dim=1)
 
-        loss = L2Loss(recon.to(device),gt.to(device))
+        loss = L1Loss(recon.to(device),gt.to(device))
     
         if batch_count%100 == 0:
             print("batch:",batch_count,"train loss:",loss.item())
@@ -92,4 +92,4 @@ for epoch in range(max_epochs):
         recon_optimizer.step()
         recon_optimizer.zero_grad()
 
-    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_mse_acc4")
+    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_mae_acc4")
