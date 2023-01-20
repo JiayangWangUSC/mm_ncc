@@ -62,7 +62,7 @@ L2Loss = torch.nn.MSELoss()
 L1Loss = torch.nn.L1Loss()
 # %% sampling mask
 mask = torch.zeros(ny)
-mask[torch.arange(132))*3] = 1
+mask[torch.arange(132)*3] = 1
 mask[torch.arange(186,210)] =1
 mask = mask.unsqueeze(0).unsqueeze(0).unsqueeze(0).unsqueeze(4).repeat(1,nc,nx,1,2)
 
