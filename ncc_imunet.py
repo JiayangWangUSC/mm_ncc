@@ -50,7 +50,7 @@ recon_model = Unet(
   num_pool_layers = 4,
   drop_prob = 0.0
 )
-recon_model = torch.load("/project/jhaldar_118/jiayangw/refnoise/model/imnet_ncc_acc6")
+recon_model = torch.load("/project/jhaldar_118/jiayangw/refnoise/model/imunet_ncc_acc6")
 #print(sum(p.numel() for p in recon_model.parameters() if p.requires_grad))
 
 # %% training settings
