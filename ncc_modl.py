@@ -55,7 +55,7 @@ recon_model = MoDL(
     n_layers = layers,
     k_iters = iters
 )
-#recon_model = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/modl_ncc_acc4")
+recon_model = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/modl_ncc_acc4")
 # %% training settings
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 batch_size = 1
@@ -73,7 +73,7 @@ mask = mask.unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
 
 # %%
 max_epochs = 100
-print("acc6")
+print("acc4")
 for epoch in range(max_epochs):
     print("epoch:",epoch+1)
     batch_count = 0    
@@ -103,6 +103,6 @@ for epoch in range(max_epochs):
         recon_optimizer.zero_grad()
 
     
-    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/modl_ncc_acc6")
+    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/modl_ncc_acc4")
 
 # %%
