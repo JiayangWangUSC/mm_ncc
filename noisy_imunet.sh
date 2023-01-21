@@ -14,4 +14,4 @@ module purge
 module load gcc/8.3.0
 module load cuda/11.2.0
 
-python /project/jhaldar_118/jiayangw/refnoise/noisy_imunet.py
+python /project/jhaldar_118/jiayangw/mm_ncc/noisy_imunet.py
