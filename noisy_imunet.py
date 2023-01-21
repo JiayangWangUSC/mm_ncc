@@ -62,7 +62,7 @@ L2Loss = torch.nn.MSELoss()
 L1Loss = torch.nn.L1Loss()
 # %% sampling mask
 mask = torch.zeros(ny)
-mask[torch.arange(132)*3] = 1
+mask[torch.arange(99)*4] = 1
 mask[torch.arange(186,210)] =1
 mask = mask.unsqueeze(0).unsqueeze(0).unsqueeze(0).unsqueeze(4).repeat(1,nc,nx,1,2)
 
@@ -92,4 +92,4 @@ for epoch in range(max_epochs):
         recon_optimizer.step()
         recon_optimizer.zero_grad()
 
-    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_mse_acc3")
+    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_mse_acc4")
