@@ -2,8 +2,8 @@
 %datapath = '/project/jhaldar_118/jiayangw/dataset/brain_copy/train/';
 datapath = '/home/wjy/Project/fastmri_dataset/knee_copy/';
 dirname = dir(datapath);
-N1 = 384; N2 = 396; Nc = 16; Ns = 8;
-
+%N1 = 384; N2 = 396; Nc = 16; Ns = 8; %brain
+N1 = 
 %%
 %newdatapath = '/project/jhaldar_118/jiayangw/dataset/brain_clean/train/';
 %for dir_num = 3:length(dirname)
@@ -15,7 +15,7 @@ fft2c = @(x) fftshift(fft2(ifftshift(x)))/sqrt(size(x,1)*size(x,2));
 ifft2c = @(x) fftshift(ifft2(ifftshift(x)))*sqrt(size(x,1)*size(x,2)); 
 
 %%
-for dir_num = 3:length(dirname)
+for dir_num = 3
 %% slice selection, undersampling and whitening 
 kData = h5read([datapath,dirname(dir_num).name],'/kspace');
 kspace = complex(kData.r,kData.i)*2e5;
@@ -33,5 +33,5 @@ kdata = zeros(N2,N1,2*Nc,Ns);
 kdata(:,:,1:Nc,:) = real(kspace_new);
 kdata(:,:,Nc+1:2*Nc,:) = imag(kspace_new);
 kdata = single(kdata);
-h5write([datapath,dirname(dir_num).name],'/kspace_central',kdata);
+%h5write([datapath,dirname(dir_num).name],'/kspace_central',kdata);
 end
