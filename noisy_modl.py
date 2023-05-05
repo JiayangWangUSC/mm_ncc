@@ -74,7 +74,7 @@ mask[torch.arange(186,210)] =1
 mask = mask.unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
 
 # %%
-max_epochs = 100
+max_epochs = 50
 for epoch in range(max_epochs):
     print("epoch:",epoch+1)
     batch_count = 0    
