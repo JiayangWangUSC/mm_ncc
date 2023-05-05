@@ -86,7 +86,7 @@ for epoch in range(max_epochs):
 
         with torch.no_grad():
             gt = toIm(train_batch)
-            x = recon.cpu()*gt/(ncc_effect[:,1,:,:])
+            x = 2*recon.cpu()*gt/(ncc_effect[:,1,:,:])
             y = gt*(ss.ive(ncc_effect[:,0,:,:],x)/ss.ive(ncc_effect[:,0,:,:]-1,x))
 
         loss = torch.sum(torch.square(recon.to(device)-y.to(device))/ncc_effect[:,1,:,:].to(device))
