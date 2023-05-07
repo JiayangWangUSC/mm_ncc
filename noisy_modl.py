@@ -56,7 +56,7 @@ recon_model = MoDL(
     n_layers = layers,
     k_iters = iters
 )
-recon_modol = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/modl_mae_acc4")
+recon_modol = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/modl_mse_acc6")
 
 # %% training settings
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -69,7 +69,7 @@ L1Loss = torch.nn.L1Loss()
 
 # %% sampling mask
 mask = torch.zeros(ny,dtype=torch.int8)
-mask[torch.arange(99)*4] = 1
+mask[torch.arange(66)*6] = 1
 mask[torch.arange(186,210)] =1
 mask = mask.unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
 
@@ -91,7 +91,7 @@ for epoch in range(max_epochs):
         #recon = fastmri.complex_mul(sense_maps.to(device),torch.permute(recon,(0,2,3,1)))
         #recon = fastmri.rss(fastmri.complex_abs(recon),dim=1)
 
-        loss = L1Loss(recon.to(device),gt.to(device))
+        loss = L2Loss(recon.to(device),gt.to(device))
 
         if batch_count%100 == 0:
             print("batch:",batch_count,"train loss:",loss.item())
@@ -101,6 +101,6 @@ for epoch in range(max_epochs):
         recon_optimizer.zero_grad()
 
     
-    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/modl_mae_acc4")
+    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/modl_mse_acc6")
 
 # %%
