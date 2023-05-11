@@ -1,8 +1,8 @@
 %% effective NCC noise parameters estimation
 %datapath = '/project/jhaldar_118/jiayangw/dataset/brain_copy/train/';
-datapath = '/home/wjy/Project/fastmri_dataset/brain_copy/';
+datapath = '/home/wjy/Project/fastmri_dataset/knee_copy/';
 dirname = dir(datapath);
-N1 = 384; N2 = 396; Nc = 16; Ns = 8;
+N1 = 320; N2 = 368; Nc = 15; Ns = 15;
 
 %%
 %for dir_num = 3:length(dirname)
@@ -19,7 +19,7 @@ F = @(x,y,L,sigma) (L-1)*log(x) + log(sigma/2) - mean(L*log(y)) + mean(x^2+y.^2)
                  - mean(log(besseli(L-1,2*x*y/sigma,1))+2*x*y/sigma);
 
 %%
-for dir_num=3:length(dirname)
+for dir_num=3%:length(dirname)
     % load data
     ncc_effect = zeros(N1,N2,2,Ns);
     kData = h5read([datapath,dirname(dir_num).name],'/kspace');
@@ -29,7 +29,7 @@ for dir_num=3:length(dirname)
     for s = 1:Ns
         kdata = reshape(kspace(s,:,:,:),2*N1,N2,Nc);
         im = ifft2c(kdata);
-        im = im(192:575,:,:);
+        im = im(161:480,:,:);
         patch = [reshape(im(1:50,1:50,:),[],Nc);reshape(im(1:50,end-49:end,:),[],Nc);reshape(im(end-49:end,1:50,:),[],Nc);reshape(im(end-49:end,end-49:end,:),[],Nc)].';
         cov = patch*patch'/size(patch,2);
         
@@ -47,7 +47,7 @@ for dir_num=3:length(dirname)
     end
     
     ncc_effect = permute(ncc_effect,[2,1,3,4]);
-    h5write([datapath,dirname(dir_num).name],'/ncc_effect',single(ncc_effect));
+%    h5write([datapath,dirname(dir_num).name],'/ncc_effect',single(ncc_effect));
 
 end
 
