@@ -1,5 +1,5 @@
 %% sense maps
-addpath('/project/jhaldar_118/jiayangw/mm_ncc/SPIRiT_v0.3');
+addpath(genpath('/project/jhaldar_118/jiayangw/mm_ncc/SPIRiT_v0.3'));
 datapath = '/project/jhaldar_118/jiayangw/dataset/knee_copy/train/';
 %addpath(genpath('/home/wjy/Project/mm_ncc/SPIRiT_v0.3'));
 %datapath = '/home/wjy/Project/fastmri_dataset/knee_copy/';
@@ -8,9 +8,9 @@ N1 = 320; N2 = 368; Nc = 15; Ns = 15;
 
 %%
 %newdatapath = '/project/jhaldar_118/jiayangw/dataset/brain_clean/train/';
-for dir_num = 3:length(dirname)
-    h5create([datapath,dirname(dir_num).name],'/sense_maps',[N2,N1,2*Nc,Ns],'Datatype','single');
-end
+%for dir_num = 3:length(dirname)
+%    h5create([datapath,dirname(dir_num).name],'/sense_maps',[N2,N1,2*Nc,Ns],'Datatype','single');
+%end
 
 %%
 fft2c = @(x) fftshift(fft2(ifftshift(x)))/sqrt(size(x,1)*size(x,2));
