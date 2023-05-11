@@ -1,6 +1,6 @@
 %%
-%datapath = '/project/jhaldar_118/jiayangw/dataset/knee_copy/train/';
-datapath = '/home/wjy/Project/fastmri_dataset/knee_copy/';
+datapath = '/project/jhaldar_118/jiayangw/dataset/knee_copy/train/';
+%datapath = '/home/wjy/Project/fastmri_dataset/knee_copy/';
 dirname = dir(datapath);
 N1 = 320; N2 = 368; Nc = 15; Ns = 15; %brain
 
