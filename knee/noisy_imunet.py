@@ -44,8 +44,8 @@ def toIm(kspace):
 # %% unet loader
 
 recon_model = Unet(
-  in_chans = 32,
-  out_chans = 32,
+  in_chans = 30,
+  out_chans = 30,
   chans = 256,
   num_pool_layers = 4,
   drop_prob = 0.0
@@ -60,10 +60,11 @@ recon_model.to(device)
 recon_optimizer = optim.Adam(recon_model.parameters(),lr=3e-4)
 L2Loss = torch.nn.MSELoss()
 L1Loss = torch.nn.L1Loss()
+
 # %% sampling mask
 mask = torch.zeros(ny)
-mask[torch.arange(66)*6] = 1
-mask[torch.arange(186,210)] =1
+mask[torch.arange(92)*4] = 1
+mask[torch.arange(172,196)] =1
 mask = mask.unsqueeze(0).unsqueeze(0).unsqueeze(0).unsqueeze(4).repeat(1,nc,nx,1,2)
 
 # %%
@@ -92,4 +93,4 @@ for epoch in range(max_epochs):
         recon_optimizer.step()
         recon_optimizer.zero_grad()
 
-    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_mse_acc6")
+    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/knee/model/imunet_mse_acc4")
