@@ -60,9 +60,11 @@ def NccLoss(x1,x2,sigma,nc):
     y = torch.sum(torch.square(x1)/(sigma*sigma)-(torch.log(ss.ive(nc-1,x))+x)+(nc-1)*torch.log(x1))
     return y/torch.sum(torch.ones_like(x))
 
+from pytorch_msssim import SSIM
+ssim_loss = SSIM(data_range=100, size_average=True, channel=1)
 
 # %% imnet loader
-imnet = torch.load('/home/wjy/Project/mm_ncc_model/imnet_mse',map_location=torch.device('cpu'))
+imnet = torch.load('/home/wjy/Project/mm_ncc_model/imunet_mse',map_location=torch.device('cpu'))
 
 # %%
 with torch.no_grad():
