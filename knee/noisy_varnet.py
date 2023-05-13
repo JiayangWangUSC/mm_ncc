@@ -66,7 +66,7 @@ L1Loss = torch.nn.L1Loss()
 
 # %% sampling mask
 mask = torch.zeros(ny)
-mask[torch.arange(92)*4] = 1
+mask[torch.arange(46)*8] = 1
 mask[torch.arange(172,196)] =1
 mask = mask.bool().unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
 
@@ -95,6 +95,6 @@ for epoch in range(max_epochs):
         recon_optimizer.step()
         recon_optimizer.zero_grad()
     #if (epoch + 1)%20 == 0:
-    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/knee/model/varnet_mse_acc4")
+    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/knee/model/varnet_mse_acc8")
 
 # %%
