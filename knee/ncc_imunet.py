@@ -64,7 +64,7 @@ L1Loss = torch.nn.L1Loss()
 
 # %% sampling mask
 mask = torch.zeros(ny)
-mask[torch.arange(92)*4] = 1
+mask[torch.arange(46)*8] = 1
 mask[torch.arange(172,196)] =1
 mask = mask.unsqueeze(0).unsqueeze(0).unsqueeze(0).unsqueeze(4).repeat(1,nc,nx,1,2)
 
@@ -87,7 +87,7 @@ for epoch in range(max_epochs):
             gt = toIm(train_batch)
             x = 2*recon.cpu()*gt/(ncc_effect[:,1,:,:])
             y = gt*(ss.ive(ncc_effect[:,0,:,:],x)/ss.ive(ncc_effect[:,0,:,:]-1,x))
-    
+
         loss = torch.sum(torch.square(recon.to(device)-y.to(device))/ncc_effect[:,1,:,:].to(device))
     
         if batch_count%100 == 0:
@@ -97,4 +97,4 @@ for epoch in range(max_epochs):
         recon_optimizer.step()
         recon_optimizer.zero_grad()
 
-    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/knee/model/imunet_ncc_acc4")
+    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/knee/model/imunet_ncc_acc8")
