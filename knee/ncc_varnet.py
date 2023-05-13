@@ -20,9 +20,9 @@ import scipy.special as ss
 # %% data loader
 from my_data import *
 
-nc = 16
-nx = 384
-ny = 396
+nc = 15
+nx = 320
+ny = 368
 
 def data_transform(kspace,ncc_effect,sense_maps):
     # Transform the kspace to tensor format
@@ -33,7 +33,7 @@ def data_transform(kspace,ncc_effect,sense_maps):
 
 train_data = SliceDataset(
     #root=pathlib.Path('/home/wjy/Project/fastmri_dataset/miniset_brain_clean/'),
-    root = pathlib.Path('/project/jhaldar_118/jiayangw/dataset/brain_copy/train/'),
+    root = pathlib.Path('/project/jhaldar_118/jiayangw/dataset/knee_copy/train/'),
     transform=data_transform,
     challenge='multicoil'
 )
@@ -45,16 +45,16 @@ def toIm(kspace):
 # %% varnet loader
 from varnet import *
 cascades = 12
-chans = 16
+chans = 15
 recon_model = VarNet(
     num_cascades = cascades,
-    sens_chans = 16,
+    sens_chans = 15,
     sens_pools = 4,
     chans = chans,
     pools = 4,
     mask_center= True
 )
-recon_model = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_ncc_acc6")
+#recon_model = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_ncc_acc6")
 
 # %% training settings
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -67,12 +67,12 @@ L1Loss = torch.nn.L1Loss()
 
 # %% sampling mask
 mask = torch.zeros(ny)
-mask[torch.arange(66)*6] = 1
-mask[torch.arange(186,210)] =1
+mask[torch.arange(92)*4] = 1
+mask[torch.arange(172,196)] =1
 mask = mask.bool().unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
 
 # %%
-max_epochs = 50
+max_epochs = 100
 for epoch in range(max_epochs):
     print("epoch:",epoch+1)
     batch_count = 0    
@@ -99,6 +99,6 @@ for epoch in range(max_epochs):
         recon_optimizer.zero_grad()
 
     #if (epoch + 1)%20 == 0:
-    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/varnet_ncc_acc6")
+    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/knee/model/varnet_ncc_acc4")
 
 # %%
