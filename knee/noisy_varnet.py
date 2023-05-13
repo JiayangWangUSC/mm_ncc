@@ -86,7 +86,7 @@ for epoch in range(max_epochs):
         recon = recon_model(kspace_input, Mask, 24).to(device)
         recon = fastmri.rss(fastmri.complex_abs(recon),dim=1)
 
-        loss = L2Loss(recon.to(device),gt.to(device))
+        loss = L1Loss(recon.to(device),gt.to(device))
 
         if batch_count%100 == 0:
             print("batch:",batch_count,"train loss:",loss.item())
@@ -95,6 +95,6 @@ for epoch in range(max_epochs):
         recon_optimizer.step()
         recon_optimizer.zero_grad()
     #if (epoch + 1)%20 == 0:
-    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/knee/model/varnet_mse_acc8")
+    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/knee/model/varnet_mae_acc8")
 
 # %%
