@@ -55,7 +55,7 @@ recon_model = MoDL(
     n_layers = layers,
     k_iters = iters
 )
-#recon_model = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/modl_mse_acc6")
+recon_model = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/knee/model/modl_mse_acc4")
 
 # %% training settings
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
