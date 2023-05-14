@@ -50,7 +50,7 @@ recon_model = Unet(
   num_pool_layers = 4,
   drop_prob = 0.0
 )
-recon_model = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_mse_acc3")
+recon_model = torch.load("/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_mae_acc3")
 #print(sum(p.numel() for p in recon_model.parameters() if p.requires_grad))
 
 # %% training settings
@@ -94,4 +94,4 @@ for epoch in range(max_epochs):
         recon_optimizer.step()
         recon_optimizer.zero_grad()
 
-    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_mse_acc3")
+    torch.save(recon_model,"/project/jhaldar_118/jiayangw/mm_ncc/model/imunet_mae_acc3")
