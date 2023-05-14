@@ -15,18 +15,22 @@ from torchvision.utils import save_image
 import math
 
 # %% data loader
-from my_data import *
+from my_data_test import *
 
 nc = 16
 nx = 384
 ny = 396
 
-def data_transform(kspace, ncc_effect, image_svd):
+def data_transform(kspace, ncc_effect, image_svd, sense_maps):
     # Transform the kspace to tensor format
     kspace = transforms.to_tensor(kspace)
     kspace = torch.cat((kspace[torch.arange(nc),:,:].unsqueeze(-1),kspace[torch.arange(nc,2*nc),:,:].unsqueeze(-1)),-1)
     image_svd = transforms.to_tensor(image_svd)
-    return kspace, image_svd
+
+    sense_maps = transforms.to_tensor(sense_maps)
+    sense_maps = torch.cat((sense_maps[torch.arange(nc),:,:].unsqueeze(-1),sense_maps[torch.arange(nc,2*nc),:,:].unsqueeze(-1)),-1)
+
+    return kspace, image_svd, sense_maps
 
 test_data = SliceDataset(
     root=pathlib.Path('/home/wjy/Project/fastmri_dataset/brain_copy/'),
@@ -45,7 +49,7 @@ def MtoIm(im):
 
 # %% sampling mask
 mask = torch.zeros(ny)
-mask[torch.arange(132)*3] = 1
+mask[torch.arange(66)*6] = 1
 mask[torch.arange(186,210)] =1
 mask = mask.bool().unsqueeze(0).unsqueeze(0).unsqueeze(3).repeat(nc,nx,1,2)
 
@@ -64,7 +68,7 @@ from pytorch_msssim import SSIM
 ssim_loss = SSIM(data_range=100, size_average=True, channel=1)
 
 # %% imnet loader
-imnet = torch.load('/home/wjy/Project/mm_ncc_model/imunet_mse',map_location=torch.device('cpu'))
+imunet = torch.load('/home/wjy/Project/mm_ncc_model/imunet_mae_acc6',map_location=torch.device('cpu'))
 
 # %%
 with torch.no_grad():
@@ -85,6 +89,44 @@ with torch.no_grad():
     recon = torch.cat((image_output[:,torch.arange(nc),:,:].unsqueeze(4),image_output[:,torch.arange(nc,2*nc),:,:].unsqueeze(4)),4)
 
     recon = MtoIm(recon)
+
+# %% 
+test_count = 0
+#mse, mse_approx, mae, mae_approx, ssim, ssim_approx, nce = 0, 0, 0, 0, 0, 0, 0
+nrmse, psnr, nmae, ssim, nrmse_approx, psnr_approx, nmae_approx, ssim_approx  = 0, 0, 0, 0, 0, 0, 0, 0
+
+for kspace, gt, sense_maps in test_data:
+    test_count += 1
+    with torch.no_grad():
+        kspace = kspace.unsqueeze(0) 
+        gt_noise = KtoIm(kspace)
+
+        # undersampling
+        Mask = mask.unsqueeze(0)
+        kspace_undersample = torch.mul(kspace,Mask)
+
+        image = fastmri.ifft2c(kspace_undersample)
+        image_input = torch.cat((image[:,:,:,:,0],image[:,:,:,:,1]),1) 
+        image_output = imunet(image_input)
+        recon = torch.cat((image_output[:,torch.arange(nc),:,:].unsqueeze(4),image_output[:,torch.arange(nc,2*nc),:,:].unsqueeze(4)),4)
+
+        recon = MtoIm(recon)
+
+        # evaluation
+        nrmse += torch.sqrt(L2Loss(recon,gt)/L2Loss(gt,0*gt))
+        psnr += 20*torch.log10(torch.max(gt)/torch.sqrt(L2Loss(recon,gt)))
+        nmae += L1Loss(recon,gt)/L1Loss(gt,0*gt)
+        ssim += ssim_loss(recon.unsqueeze(0),gt.unsqueeze(0))
+
+        nrmse_approx += torch.sqrt(L2Loss(recon,gt_noise)/L2Loss(gt_noise,0*gt_noise))
+        psnr_approx += 20*torch.log10(torch.max(gt_noise)/torch.sqrt(L2Loss(recon,gt_noise)))
+        nmae_approx += L1Loss(recon,gt_noise)/L1Loss(gt_noise,0*gt_noise)
+        ssim_approx += ssim_loss(recon.unsqueeze(0),gt_noise.unsqueeze(0))
+    #   nce += NccLoss(recon.squeeze(),gt_noise,ncc_effect)-NccLoss(gt_noise,gt_noise,ncc_effect)
+
+#print(mse/test_count,mse_approx/test_count,mae/test_count,mae_approx/test_count,ssim/test_count,ssim_approx/test_count,nce/test_count )
+
+print(nrmse/test_count,psnr/test_count,nmae/test_count,ssim/test_count,nrmse_approx/test_count,psnr_approx/test_count,nmae_approx/test_count,ssim_approx/test_count)
 
 # %% varnet loader
 epoch = 100
